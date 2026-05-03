@@ -1,5 +1,4 @@
 #pragma once
-#include <algorithm>
 #include <concepts>
 #include <iterator>
 #include <vector>
@@ -8,7 +7,6 @@ namespace nnk {
 template <std::random_access_iterator Iter>
 auto prefix_function(Iter first, Iter last) -> std::vector<int> {
   int n = static_cast<int>(std::distance(first, last));
-  std::sort(first, last);
   std::vector<int> fail(n + 1);
   for (int i = 1, j = 0; i < n; ++i) {
     while (j && *(first + i) != *(first + j)) j = fail[j];

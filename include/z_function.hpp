@@ -6,6 +6,7 @@ namespace nnk {
 template <std::random_access_iterator Iter>
 auto z_function(Iter first, Iter last) -> std::vector<int> {
   std::size_t n = std::distance(first, last);
+  if (n == 0) return {};
 
   std::vector<int> z(n);
   z[0] = n;
