@@ -12,6 +12,7 @@ namespace nnk {
 template <std::integral Int>
 constexpr Int floor_sqrt(Int n) {
   assert(n >= 0);
+  if (n == 0) return 0;
   u64 t = std::sqrt(n);
   while (t > std::numeric_limits<u32>::max() || t * t > n) --t;
   while (t < std::numeric_limits<u32>::max() && (t + 1) * (t + 1) < n) ++t;
@@ -21,6 +22,7 @@ constexpr Int floor_sqrt(Int n) {
 template <std::integral Int>
 constexpr Int ceil_sqrt(Int n) {
   assert(n >= 0);
+  if (n == 0) return 0;
   u64 t = std::sqrt(n);
   while (t < std::numeric_limits<u32>::max() && t * t < n) ++t;
   while (t > std::numeric_limits<u32>::max() || (t - 1) * (t - 1) >= n) --t;
