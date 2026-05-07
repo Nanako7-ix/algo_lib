@@ -33,8 +33,8 @@ void random_array(Iter l, Iter r, Int lo, Int hi) {
 /// `E[height(T)] = O(log n)`
 inline auto random_tree_random_father(int n) -> std::vector<std::array<int, 2>> {
   std::vector<std::array<int, 2>> edges(n - 1);
-  for (int i = 2; i < n; ++i) {
-    edges[i - 2] = {randint(1, i - 1), i};
+  for (int u = 2; u <= n; ++u) {
+    edges[u - 2] = {randint(1, u - 1), u};
   }
   return edges;
 }

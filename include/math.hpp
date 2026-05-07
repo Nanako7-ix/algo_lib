@@ -1,40 +1,46 @@
 #pragma once
+#include "types.hpp"
 #include <bit>
 #include <cassert>
 #include <cmath>
 #include <concepts>
 #include <optional>
+#include <type_traits>
 
 namespace nnk {
 template <std::integral Int>
 constexpr Int floor_sqrt(Int n) {
+  constexpr static u64 max_sqrt = (static_cast<u64>(1) << 32) - 1;
   assert(n >= 0);
-  Int t = std::sqrt(n);
-  while (t * t > n) --t;
-  while ((t + 1) * (t + 1) < n) ++t;
+  
+  u64 t = std::sqrt(n);
+  while (t > max_sqrt || t * t > n) --t;
+  while (t < max_sqrt && (t + 1) * (t + 1) < n) ++t;
   return t;
 }
 
 template <std::integral Int>
 constexpr Int ceil_sqrt(Int n) {
+  constexpr static u64 max_sqrt = (static_cast<u64>(1) << 32) - 1;
   assert(n >= 0);
-  Int t = std::sqrt(n);
-  while (t * t < n) ++t;
-  while ((t - 1) * (t - 1) >= n) --t;
+
+  u64 t = std::sqrt(n);
+  while (t < max_sqrt && t * t < n) ++t;
+  while (t > max_sqrt || (t - 1) * (t - 1) >= n) --t;
   return t;
 }
 
 template <std::integral Int>
 constexpr int floor_log2(Int n) {
   assert(n >= 0);
-  return std::bit_width(n) - 1;
+  return std::bit_width<std::make_unsigned_t<Int>>(n) - 1;
 }
 
 template <std::integral Int>
 constexpr int ceil_log2(Int n) {
   assert(n >= 0);
   if (n == 0) return 0;
-  return std::bit_width(n - 1);
+  return std::bit_width<std::make_unsigned_t<Int>>(n - 1);
 }
 
 template <std::unsigned_integral Int>
