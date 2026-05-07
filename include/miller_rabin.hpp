@@ -15,7 +15,7 @@ bool miller_rabin(Int x) {
   if (x == 2 || x == 3 || x == 5 || x == 7) return true;
   if (x < 2 || x % 2 == 0 || x % 3 == 0 || x % 5 == 0 || x % 7 == 0) return false;
   if (x < 121) return x > 1;
-  const Int d = (x - 1) >> std::countr_zero(x - 1);
+  const Int d = (x - 1) >> std::countr_zero<Int>(x - 1);
 
   auto check = [x, d](const Int& a) {
     Int y = 1, t = d;
