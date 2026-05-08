@@ -17,6 +17,7 @@
 namespace nnk {
 template <std::unsigned_integral Int>
 Int pollard_rho(Int n) {
+  if (n == 1) return 1;
   const Int c = randint<Int>(1, n - 1);
 
   auto f = [&](Int x) {
@@ -33,7 +34,7 @@ Int pollard_rho(Int n) {
     for (Int k = 0; k < r && g == 1; k += m) {
       z = y;
       Int prod = 1;
-      for (Int i = 0; i < std::min(m, r - k); ++i) {
+      for (Int i = 0; i < std::min<Int>(m, r - k); ++i) {
         y = f(y);
         Int diff = x > y ? x - y : y - x;
         prod = static_cast<u128>(prod) * diff % n;
