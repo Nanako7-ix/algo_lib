@@ -11,7 +11,10 @@
 
 namespace nnk {
 template <std::unsigned_integral Int>
-bool miller_rabin(Int x) {
+constexpr bool miller_rabin(Int x) {
+  static_assert(!std::same_as<Int, bool>,
+                "miller_rabin(x) does not support bool");
+
   if (x == 2 || x == 3 || x == 5 || x == 7) return true;
   if (x < 2 || x % 2 == 0 || x % 3 == 0 || x % 5 == 0 || x % 7 == 0) return false;
   if (x < 121) return x > 1;

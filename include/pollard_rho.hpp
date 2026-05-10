@@ -17,43 +17,51 @@
 namespace nnk {
 template <std::unsigned_integral Int>
 Int pollard_rho(Int n) {
+  static_assert(!std::same_as<Int, bool>,
+                "pollard_rho(n) does not support bool");
+
   if (n == 1) return 1;
-  const Int c = randint<Int>(1, n - 1);
+  while (true) {
+    const Int c = randint<Int>(1, n - 1);
 
-  auto f = [&](Int x) {
-    return (static_cast<u128>(x) * x % n + c) % n;
-  };
+    auto f = [&](Int x) {
+      return (static_cast<u128>(x) * x % n + c) % n;
+    };
 
-  Int x, y = 2, z = 1, g = 1;
-  const Int m = static_cast<Int>(1) << (floor_log2(n) / 5);
-  for (Int r = 1; g == 1; r <<= 1) {
-    x = y;
-    for (Int i = 0; i < r; ++i) {
-      y = f(y);
-    }
-    for (Int k = 0; k < r && g == 1; k += m) {
-      z = y;
-      Int prod = 1;
-      for (Int i = 0; i < std::min<Int>(m, r - k); ++i) {
+    Int x, y = 2, z = 1, g = 1;
+    const Int m = static_cast<Int>(1) << (floor_log2(n) / 5);
+    for (Int r = 1; g == 1; r <<= 1) {
+      x = y;
+      for (Int i = 0; i < r; ++i) {
         y = f(y);
-        Int diff = x > y ? x - y : y - x;
-        prod = static_cast<u128>(prod) * diff % n;
       }
-      g = std::gcd(prod, n);
+      for (Int k = 0; k < r && g == 1; k += m) {
+        z = y;
+        Int prod = 1;
+        for (Int i = 0; i < std::min<Int>(m, r - k); ++i) {
+          y = f(y);
+          Int diff = x > y ? x - y : y - x;
+          prod = static_cast<u128>(prod) * diff % n;
+        }
+        g = std::gcd(prod, n);
+      }
     }
+    if (g == n) {
+      do {
+        z = f(z);
+        Int diff = x > z ? x - z : z - x;
+        g = std::gcd(diff, n);
+      } while (g == 1);
+    }
+    if (g != n) return g;
   }
-  if (g == n) {
-    do {
-      z = f(z);
-      Int diff = x > z ? x - z : z - x;
-      g = std::gcd(diff, n);
-    } while (g == 1);
-  }
-  return g;
 }
 
 template <std::unsigned_integral Int>
 Int find_prime_factor(Int n) {
+  static_assert(!std::same_as<Int, bool>,
+                "find_prime_factor(n) does not support bool");
+
   assert(n > 1);
   if (miller_rabin(n)) return n;
   while (true) {
@@ -65,6 +73,9 @@ Int find_prime_factor(Int n) {
 
 template <std::unsigned_integral Int>
 auto factorization(Int n) {
+  static_assert(!std::same_as<Int, bool>,
+                "factorization(n) does not support bool");
+
   std::vector<std::pair<Int, int>> res;
   for (Int p = 2; p * p <= n && p < 100; ++p) {
     if (n % p) continue;
