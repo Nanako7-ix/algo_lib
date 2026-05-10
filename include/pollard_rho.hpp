@@ -20,7 +20,7 @@ Int pollard_rho(Int n) {
   static_assert(!std::same_as<Int, bool>,
                 "pollard_rho(n) does not support bool");
 
-  if (n == 1) return 1;
+  if (n == 1 || miller_rabin(n)) return n;
   while (true) {
     const Int c = randint<Int>(1, n - 1);
 
