@@ -12,7 +12,7 @@ template <std::integral Int>
 constexpr Int floor_sqrt(Int n) {
   constexpr static u64 max_sqrt = (static_cast<u64>(1) << 32) - 1;
   assert(n >= 0);
-  
+
   u64 t = std::sqrt(n);
   while (t > max_sqrt || t * t > n) --t;
   while (t < max_sqrt && (t + 1) * (t + 1) < n) ++t;
@@ -88,5 +88,18 @@ auto solve_quadratic_equation(F a, F b, F c) -> std::optional<std::pair<F, F>> {
   if (delta < 0) return std::nullopt;
   F q = -(b + std::copysign<F>(std::sqrt(delta), b)) / 2;
   return {q / a, c / q};
+}
+
+template <std::integral T>
+requires(!std::same_as<std::remove_cv_t<T>, bool>)
+constexpr std::make_unsigned_t<T> safe_abs(T x) noexcept {
+  using U = std::make_unsigned_t<T>;
+
+  if constexpr (std::is_signed_v<T>) {
+    U u = static_cast<U>(x);
+    return x < 0 ? U{0} - u : u;
+  } else {
+    return x;
+  }
 }
 } // namespace nnk
