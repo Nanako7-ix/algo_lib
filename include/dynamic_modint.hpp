@@ -1,6 +1,9 @@
+#pragma once
 #include "exgcd.hpp"
+#include "math.hpp"
 #include "modint.hpp"
 #include "types.hpp"
+#include <format>
 #include <istream>
 #include <stdexcept>
 
@@ -15,6 +18,10 @@ public:
   using value_type = u32;
   using signed_type = i32;
 
+  constexpr static void set_mod(u32 m) {
+    bt = barrett{m};
+  }
+
   constexpr static value_type mod() noexcept {
     return bt.mod;
   }
@@ -28,8 +35,8 @@ public:
 
   template <std::signed_integral T>
   constexpr dynamic_modint(T x) noexcept {
-    signed_type t = x % static_cast<signed_type>(mod());
-    v = t < 0 ? t + mod() : t;
+    auto r = safe_abs(x) % mod();
+    v = x < 0 && r != 0 ? mod() - r : r;
   }
 
   constexpr value_type val() const noexcept {
@@ -41,14 +48,21 @@ public:
   }
 
   constexpr dynamic_modint& operator+=(const dynamic_modint& o) & noexcept {
-    v += o.v;
-    if (v >= mod()) v -= mod();
+    value_type r = mod() - o.v;
+    if (v >= r) {
+      v -= r;
+    } else {
+      v += o.v;
+    }
     return *this;
   }
 
   constexpr dynamic_modint& operator-=(const dynamic_modint& o) & noexcept {
-    v -= o.v;
-    if (v >= mod()) v += mod();
+    if (v >= o.v) {
+      v -= o.v;
+    } else {
+      v += mod() - o.v;
+    }
     return *this;
   }
 
@@ -57,7 +71,7 @@ public:
     return *this;
   }
 
-  constexpr dynamic_modint& operator/=(const dynamic_modint& o) & noexcept {
+  constexpr dynamic_modint& operator/=(const dynamic_modint& o) & {
     return *this *= o.inv();
   }
 
@@ -73,7 +87,7 @@ public:
     return lhs *= rhs;
   }
 
-  friend constexpr dynamic_modint operator/(dynamic_modint lhs, const dynamic_modint& rhs) noexcept {
+  friend constexpr dynamic_modint operator/(dynamic_modint lhs, const dynamic_modint& rhs) {
     return lhs /= rhs;
   }
 
@@ -107,7 +121,9 @@ public:
   constexpr dynamic_modint inv() const {
     auto [x, y, gcd] = exgcd(v, mod());
     if (gcd != 1) {
-      throw std::invalid_argument("gcd(v, Mod) != 1, Inversion does not exist");
+      throw std::invalid_argument(
+          std::format("gcd({}, {}) != 1, Inversion does not exist",
+                      v, mod()));
     }
     return dynamic_modint{x};
   }
@@ -136,7 +152,7 @@ private:
         throw std::invalid_argument("mod equals to 0");
       }
       mod = m;
-      inv_mod = static_cast<u32>(-1) / mod + 1;
+      inv_mod = static_cast<u64>(-1) / mod + 1;
     }
 
     constexpr u32 mul(u32 a, u32 b) const {
@@ -151,14 +167,11 @@ private:
       }
       _umul128(x, inv_mod, &k);
 #else
-      assert(false && "barrett requires 128-bit multiplication support");
+      return x % mod;
 #endif
 
-      u32 ret = x - k * mod;
-      if (ret >= mod) {
-        ret += mod;
-      }
-      return ret;
+      u64 y = k * mod;
+      return static_cast<u32>(x - y + (x < y ? mod : 0));
     }
   };
   static barrett bt;

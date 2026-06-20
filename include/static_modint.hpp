@@ -1,9 +1,11 @@
 #pragma once
 #include "exgcd.hpp"
+#include "math.hpp"
 #include "modint.hpp"
 #include "types.hpp"
 #include <cassert>
 #include <concepts>
+#include <format>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -11,11 +13,11 @@
 
 namespace nnk {
 template <std::unsigned_integral U, U Mod>
-requires(std::numeric_limits<U>::digits <= 64)
+requires(std::numeric_limits<U>::digits <= 64 && Mod != 0)
 class static_modint {
 public:
   using value_type = std::common_type_t<U, unsigned int>;
-  using signed_type = std::make_signed<value_type>;
+  using signed_type = std::make_signed_t<value_type>;
 
   constexpr static value_type mod() noexcept {
     return Mod;
@@ -30,8 +32,8 @@ public:
 
   template <std::signed_integral T>
   constexpr static_modint(T x) noexcept {
-    signed_type t = x % static_cast<signed_type>(mod());
-    v = t < 0 ? t + mod() : t;
+    auto r = safe_abs(x) % mod();
+    v = x < 0 && r != 0 ? mod() - r : r;
   }
 
   constexpr value_type val() const noexcept {
@@ -43,14 +45,21 @@ public:
   }
 
   constexpr static_modint& operator+=(const static_modint& o) & noexcept {
-    v += o.v;
-    if (v >= mod()) v -= mod();
+    value_type r = mod() - o.v;
+    if (v >= r) {
+      v -= r;
+    } else {
+      v += o.v;
+    }
     return *this;
   }
 
   constexpr static_modint& operator-=(const static_modint& o) & noexcept {
-    v -= o.v;
-    if (v >= mod()) v += mod();
+    if (v >= o.v) {
+      v -= o.v;
+    } else {
+      v += mod() - o.v;
+    }
     return *this;
   }
 
@@ -64,10 +73,10 @@ public:
       static_assert(std::numeric_limits<f128>::digits >= std::bit_width(Mod) + 2,
                     "Not Enough Precision");
 
-      u64 k = std::round(static_cast<f128>(a) * b / Mod);
-      u64 ret = a * b - k * Mod;
-      if (ret >= Mod) ret += Mod;
-      return ret;
+      u64 k = std::round(static_cast<f128>(v) * o.v / Mod);
+      u64 res = v * o.v - k * Mod;
+      if (res >= Mod) res += Mod;
+      v = static_cast<value_type>(res);
 #endif
     }
     return *this;
@@ -123,7 +132,9 @@ public:
   constexpr static_modint inv() const {
     auto [x, y, gcd] = exgcd(v, mod());
     if (gcd != 1) {
-      throw std::invalid_argument("gcd(v, Mod) != 1, Inversion does not exist");
+      throw std::invalid_argument(
+          std::format("gcd({}, {}) != 1, Inversion does not exist",
+                      v, mod()));
     }
     return static_modint{x};
   }
@@ -145,6 +156,9 @@ public:
 private:
   value_type v;
 };
+
+using mod998 = static_modint<u32, 998244353>;
+using mod1e9 = static_modint<u32, 1000000007>;
 
 template <std::unsigned_integral U, U Mod>
 requires(std::numeric_limits<U>::digits <= 64)

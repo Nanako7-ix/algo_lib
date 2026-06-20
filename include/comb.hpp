@@ -19,7 +19,7 @@ struct mod_comb {
   }
   constexpr static z inv(u32 v) {
     if (v == 0) {
-      throw std::invalid_argument("Inverse Dose Not Exist.");
+      throw std::invalid_argument("Inverse of 0 Dose Not Exist.");
     }
     return fact<z>(v - 1) * ifact<z>(v);
   }
