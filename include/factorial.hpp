@@ -1,7 +1,5 @@
 #pragma once
 #include "modint.hpp"
-#include "types.hpp"
-#include <stdexcept>
 #include <vector>
 
 namespace nnk {
@@ -15,6 +13,7 @@ public:
   }
   constexpr void clear() {
     f.clear();
+    n = 0, f.push_back(1);
   }
 
 private:
@@ -43,6 +42,7 @@ public:
   }
   constexpr void clear() {
     g.clear();
+    n = 0, g.push_back(1);
   }
 
 private:
