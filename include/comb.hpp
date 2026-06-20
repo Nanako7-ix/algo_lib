@@ -1,6 +1,8 @@
 #pragma once
 #include "factorial.hpp"
 #include "modint.hpp"
+#include "types.hpp"
+#include <stdexcept>
 
 namespace nnk {
 template <modint z>
