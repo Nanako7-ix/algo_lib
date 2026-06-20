@@ -149,13 +149,13 @@ private:
 
     constexpr barrett(u32 m = 998244353) {
       if (m == 0) {
-        throw std::invalid_argument("mod equals to 0");
+        throw std::invalid_argument("Mod Can Not Euals To 0");
       }
       mod = m;
       inv_mod = static_cast<u64>(-1) / mod + 1;
     }
 
-    constexpr u32 mul(u32 a, u32 b) const {
+    constexpr u32 mul(u32 a, u32 b) const noexcept {
       u64 x = static_cast<u64>(a) * b;
       u64 k = 0;
 

@@ -13,6 +13,9 @@ public:
     if (p > n) extent(2 * p);
     return f[p];
   }
+  constexpr void clear() {
+    f.clear();
+  }
 
 private:
   std::size_t n;
@@ -37,6 +40,9 @@ public:
   constexpr z operator()(std::size_t p) {
     if (p > n) extent(2 * p);
     return g[p];
+  }
+  constexpr void clear() {
+    g.clear();
   }
 
 private:
