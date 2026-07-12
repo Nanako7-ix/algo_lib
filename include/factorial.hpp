@@ -6,26 +6,27 @@ namespace nnk {
 template <modint z>
 struct factorial {
 public:
-  constexpr factorial() : n(0), f{1} {}
+  constexpr factorial() : m_data{1} {}
   constexpr z operator()(std::size_t p) {
-    if (p > n) extent(2 * p);
-    return f[p];
+    if (p >= m_data.size()) {
+      extent(2 * p);
+    }
+    return m_data[p];
   }
-  constexpr void clear() {
-    f.clear();
-    n = 0, f.push_back(1);
+  constexpr void reset() {
+    m_data.clear();
+    m_data.push_back(1);
   }
 
 private:
-  std::size_t n;
-  std::vector<z> f;
+  std::vector<z> m_data;
 
   constexpr void extent(std::size_t m) {
-    f.resize(m + 1);
-    for (std::size_t i = n; i < m; ++i) {
-      f[i + 1] = f[i] * z{i + 1};
+    std::size_t n = m_data.size();
+    m_data.resize(m + 1);
+    for (std::size_t i = n; i <= m; ++i) {
+      m_data[i] = m_data[i - 1] * z{i};
     }
-    n = m;
   }
 };
 
@@ -35,28 +36,29 @@ factorial<z> fact = factorial<z>{};
 template <modint z>
 struct inv_factorial {
 public:
-  constexpr inv_factorial() : n(0), g{1} {}
+  constexpr inv_factorial() : m_data{1} {}
   constexpr z operator()(std::size_t p) {
-    if (p > n) extent(2 * p);
-    return g[p];
+    if (p >= m_data.size()) {
+      extent(2 * p);
+    }
+    return m_data[p];
   }
-  constexpr void clear() {
-    g.clear();
-    n = 0, g.push_back(1);
+  constexpr void reset() {
+    m_data.clear();
+    m_data.push_back(1);
   }
 
 private:
-  std::size_t n;
-  std::vector<z> g;
+  std::vector<z> m_data;
 
   constexpr void extent(std::size_t m) {
-    g.resize(m + 1);
-    g[m] = fact<z>(m).inv();
+    std::size_t n = m_data.size();
+    m_data.resize(m + 1);
 
+    m_data[m] = fact<z>(m).inv();
     for (std::size_t i = m; i > n; --i) {
-      g[i - 1] = g[i] * z{i};
+      m_data[i - 1] = m_data[i] * z{i};
     }
-    n = m;
   }
 };
 
